@@ -1,0 +1,4 @@
+*.json*
+*.zip
+*glove.*B.*d.txt
+**/.gitbackup
