@@ -5,10 +5,11 @@ Calculates json
 import argparse
 import json
 import numpy as np
+import os
 
-# JSONS = ['hotpot/hotpot_dev_distractor_v1.json',
-#          'hotpot/hotpot_dev_fullwiki_v1.json']
-JSONS = ['hotpot/hotpot_dev_fullwiki_v1.json']
+JSONS = ['hotpot/hotpot_dev_distractor_v1.json',
+         'hotpot/hotpot_dev_fullwiki_v1.json']
+# JSONS = ['hotpot/hotpot_dev_fullwiki_v1.json']
 parser = argparse.ArgumentParser(description='get IR metrics')
 parser.add_argument('--json', help='JSON file(s)', nargs='*', default=JSONS)
 parser.add_argument('--output', help='output file name', default='output.txt')
@@ -18,7 +19,7 @@ def get_idx(hit, article_titles):
         return article_titles.index(hit)
     except:
         return 5001
-        # return len(article_titles) + 1
+
 
 def get_ir_metrics(dataset, max_K=10):
     """ Get IR metrics for the given dataset. Note: mean rank is not an accurate metric unless 5000
@@ -63,20 +64,30 @@ def get_ir_metrics(dataset, max_K=10):
     mean_avg_prec = np.mean(avg_prec)
     mean_rank = np.mean(avg_ranks)
     mean_hits_at = [np.mean(x) for x in hits_at]
-    print(mean_avg_prec)
-    print(mean_rank)
-    print(mean_hits_at)
+    # print(mean_avg_prec)
+    # print(mean_rank)
+    # print(mean_hits_at)
+    return (mean_avg_prec, mean_rank, mean_hits_at)
 
-    return(mean_avg_prec, mean_rank, hits_at)
-
+def print_ir_table(metrics_list, set_names):
+    print('{:^25} {:^5} {:^10} {:^8} {:^8}'.format('Set', 'MAP', 'Mean Rank', 'Hits@2', 'Hits@10'))
+    print('-' * 60)
+    for metrics, name in zip(metrics_list, set_names):
+        metrics = [metrics[0] * 100, metrics[1], metrics[2][1] * 100, metrics[2][9] * 100]
+        print('{:<25} {:^5.2f} {:10.2f} {:8.2f} {:8.2f}'.format(name, *metrics))
 
 def main():
+    metrics_list = []
     args = parser.parse_args()
     for json_name in args.json:
         print('loading dataset from {}'.format(json_name))
         with open(json_name) as f:
             dataset = json.load(f)
-        metrics = get_ir_metrics(dataset)
+        metrics_list.append(get_ir_metrics(dataset))
+    strip_set_name = lambda x: os.path.splitext(os.path.basename(x))[0]
+    set_names = [strip_set_name(x) for x in args.json]
+    print_ir_table(metrics_list, set_names)
+
 
 if __name__ == '__main__':
     main()
