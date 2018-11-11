@@ -27,3 +27,6 @@ echo "Submitting command to $instanceName: $cmd"
 gcloud compute ssh rg3155@$instanceName \
   --ssh-key-file="~/.ssh/w4995_key" \
   --command="$cmd"
+
+echo "Stopping instance $instanceName"
+gcloud compute instances stop $instanceName
