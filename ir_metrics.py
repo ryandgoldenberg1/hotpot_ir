@@ -14,21 +14,33 @@ parser = argparse.ArgumentParser(description='get IR metrics')
 parser.add_argument('--json', help='JSON file(s)', nargs='*', default=JSONS)
 parser.add_argument('--output', help='output file name', default='output.txt')
 
-def get_idx(hit, article_titles):
+def get_rank(hit, article_titles):
+    """Get rank of hit from the candidate article titles.
+
+    Args:
+        hit (str): gold article title
+        article_titles (list(str)): candidate article titles
+
+    Returns:
+        int: rank of hit
+    """
     try:
-        return article_titles.index(hit)
-    except:
-        return 5001
+        return article_titles.index(hit) + 1
+    except: # if not found, return num candidates + 1 (see C.1 in paper)
+        return 5001 + 1
 
 
 def get_ir_metrics(dataset, max_K=10):
+
     """ Get IR metrics for the given dataset. Note: mean rank is not an accurate metric unless 5000
         documents are passed in, as they did for HotPotQA.
-    Arguments:
-        dataset (dict) -- dataset loaded from JSON
-        max_K (int)-- max value of K
+
+    Arg:
+        dataset (dict): dataset loaded from JSON
+        max_K (int): max value of K
+
     Returns:
-        float, int, list(int) -- MAP, mean rank, hits at K
+        float, int, list(int): MAP, mean rank, hits at K
     """
     total_num_hits = 0
     total_num_gold = len(dataset) * 2
@@ -55,18 +67,15 @@ def get_ir_metrics(dataset, max_K=10):
             if not is_relevant:
                 continue
             prec_at[i].append(num_hits / K)
-        hits_idx = [get_idx(x, article_titles) for x in gold_titles]
+        hits_idx = [get_rank(x, article_titles) for x in gold_titles]
         avg_idx = np.mean(hits_idx)
         avg_ranks.append(avg_idx)
 
-    prec_at = [x for x in prec_at if x]
+    prec_at = [x if x else [0] for x in prec_at]
     avg_prec = [np.mean(x) for x in prec_at]
     mean_avg_prec = np.mean(avg_prec)
     mean_rank = np.mean(avg_ranks)
     mean_hits_at = [np.mean(x) for x in hits_at]
-    # print(mean_avg_prec)
-    # print(mean_rank)
-    # print(mean_hits_at)
     return (mean_avg_prec, mean_rank, mean_hits_at)
 
 def print_ir_table(metrics_list, set_names):
