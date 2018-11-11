@@ -11,7 +11,7 @@ if [ -z "$1" ]; then
   usage
 fi
 
-gsutil cp gs://hotpot-ir/data/derived/wiki-parsed.tar.bz2 .
+/snap/bin/gsutil cp gs://hotpot-ir/data/derived/wiki-parsed.tar.bz2 .
 tar -xvf wiki-parsed.tar.bz2
 inputPath="wiki-parsed/$1"
 if [ ! -d "$inputPath" ]; then
