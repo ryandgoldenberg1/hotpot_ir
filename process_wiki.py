@@ -51,7 +51,7 @@ class WikiParser:
         assert isinstance(path, str)
         assert path.endswith('.bz2')
         with bz2.open(path) as f:
-            return [json.loads(l) for l in f.readlines()]
+            return [json.loads(l.decode('utf-8')) for l in  f.readlines()]
 
     @staticmethod
     def write_docs(path, docs):
@@ -82,8 +82,8 @@ class WikiParser:
         assert all([x.startswith(input_dir) for x in input_paths])
         output_paths = [x.replace(input_dir, output_dir, 1) for x in input_paths]
         assert all([x.startswith(output_dir) for x in output_paths])
-
         print('Creating output directories...')
+
         output_dirs = set(os.path.dirname(x) for x in output_paths)
         for dir in output_dirs:
             if not os.path.exists(dir):
@@ -96,11 +96,13 @@ class WikiParser:
             output_path = output_paths[i]
             parser = cls(input_path=input_path, output_path=output_path)
             parsers.append(parser)
-
         print('Executing parsers...')
-        with mp.Pool(num_threads) as pool:
-            pool.map(cls._run, parsers)
-
+        if num_threads > 1:
+            with mp.Pool(num_threads) as pool:
+                pool.map(cls._run, parsers)
+        else:
+            for parser in parsers:
+                parser.run()
 
 def main():
     parser = argparse.ArgumentParser()
