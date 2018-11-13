@@ -21,7 +21,7 @@ if [ ! -d "output" ]; then
   mkdir output
 fi
 python3 hotpot_ir/bigram_model.py \
-  --docs_dir na \
+  --docs_dir wiki-tokenized-bow \
   --bow_dir wiki-tokenized-bow \
   --index_path wiki-index.json \
   --vocab_path vocab.json \
