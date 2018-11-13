@@ -6,3 +6,4 @@ sudo apt install -y python3-pip
 
 pip3 install spacy
 python3 -m spacy download en
+pip3 install bs4

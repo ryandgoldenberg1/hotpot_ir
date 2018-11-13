@@ -17,7 +17,9 @@ hotpotPath="hotpot_chunked/$path"
 outputPath="gs://hotpot-ir/data/output/tfidf_bigram/$path"
 
 cd /dev/shm
-mkdir output
+if [ ! -d "output" ]; then
+  mkdir output
+fi
 python3 hotpot_ir/bigram_model.py \
   --docs_dir na \
   --bow_dir wiki-tokenized-bow \
