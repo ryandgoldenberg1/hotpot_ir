@@ -9,3 +9,4 @@ cd /dev/shm
 /snap/bin/gsutil cp gs://hotpot-ir/data/derived/doc-freq.json .
 /snap/bin/gsutil cp gs://hotpot-ir/data/derived/wiki-index.json .
 /snap/bin/gsutil cp gs://hotpot-ir/data/derived/wiki-inverted-index.json .
+tar -xvf wiki-tokenized-bow.tar.bz2
