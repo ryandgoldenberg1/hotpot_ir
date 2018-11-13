@@ -2,3 +2,7 @@
 *.zip
 *glove.*B.*d.txt
 **/.gitbackup
+data
+.gitignore
+archive
+__pycache__

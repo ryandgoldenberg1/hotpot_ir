@@ -23,6 +23,9 @@ echo "Creating instance $instanceName"
 gcloud compute instances create $instanceName \
   --source-instance-template cpu-sm
 
+echo "Waiting for the instance to finish startup"
+sleep 180s
+
 echo "Submitting command to $instanceName: $cmd"
 gcloud compute ssh rg3155@$instanceName \
   --ssh-key-file="~/.ssh/w4995_key" \
