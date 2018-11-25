@@ -1,11 +1,37 @@
+"""
+Example:
+python3 process_wiki.py -i /home/rg3155/wiki/enwiki-20171001-pages-meta-current-withlinks-processed/ -o /home/rg3155/wiki/wiki_500char -t 1
+"""
+
 import argparse
 import bs4
 import bz2
 import json
 import multiprocessing as mp
+import nltk
+from nltk.corpus import stopwords
 import os
 import time
 
+PUNCTUATION = set('!"#$%&\'()*+,-/:;<=>?@[\\]^_`{|}~') # no ., since we need period for HotpotQA to identify the sentence index for supporting facts
+STOPWORDS = set(stopwords.words('english'))
+def process_text(text):
+    """
+    Remove stopwords, select sentences until text has no less than 500 characters.
+    Does not remove numbers since that's important for comparisons.
+    """
+    text_new = ""
+    sents = nltk.sent_tokenize(text)
+    to_remove = STOPWORDS | PUNCTUATION
+    for sent in sents:
+        words = nltk.word_tokenize(sent)
+        words_filtered = [word for word in words if word.lower() not in to_remove]
+        sent_new = ' '.join(words_filtered)
+        text_new += '' + sent_new
+        if len(text_new) > 500:
+            break
+    text_new = text_new.replace(' .', '. ')
+    return text_new
 
 class WikiParser:
     def __init__(self, input_path, output_path):
@@ -42,7 +68,7 @@ class WikiParser:
         sentences = [sentence for paragraph in paragraphs for sentence in paragraph]
         text = ''.join(sentences)
         soup = bs4.BeautifulSoup(text, features='html5lib')
-        body = title + '. ' + soup.text
+        body = title + '. ' + process_text(soup.text) # add title since stopword removal may have removed that information
         links = [{'href': x.get('href'), 'text': x.text}  for x in soup.find_all('a')]
         return { 'id': doc['id'], 'url': doc['url'], 'title': title, 'body': body, 'links': links }
 
