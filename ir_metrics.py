@@ -71,7 +71,11 @@ def get_ir_metrics(dataset, max_K=10):
         avg_idx = np.mean(hits_idx)
         avg_ranks.append(avg_idx)
 
-    prec_at = [x if x else [0] for x in prec_at]
+
+    prec_at = [x if (x and len(x) > 1) else x + [0] if x \
+                                       else [0, 0] for x in prec_at]
+    for elem in prec_at:
+        assert len(elem) == 2
     avg_prec = [np.mean(x) for x in prec_at]
     mean_avg_prec = np.mean(avg_prec)
     mean_rank = np.mean(avg_ranks)
