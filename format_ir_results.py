@@ -19,7 +19,7 @@ RESULTS = [
 IN_FILES = [
     'hotpot/hotpot_dev_distractor_v1.json',
     'hotpot/hotpot_dev_fullwiki_v1.json',
-    'hotpot/hotpot_dev_train_v1.json',
+    'hotpot/hotpot_train_v1.json',
 ]
 
 OUT_FILES = [
@@ -53,7 +53,8 @@ def main(args):
                 # import pdb; pdb.set_trace()
                 out_d[query_id]['context'].append(doc_info)
             print('saving to {}...'.format(out_path))
-            json.dump(out_d, out_f)
+            out_vals = list(out_d.values())
+            json.dump(out_vals, out_f)
             # import pdb; pdb.set_trace()
 
 
