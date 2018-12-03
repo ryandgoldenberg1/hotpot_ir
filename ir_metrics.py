@@ -7,12 +7,13 @@ import json
 import numpy as np
 import os
 
-JSONS = ['hotpot/hotpot_dev_distractor_v1.json',
-         'hotpot/hotpot_dev_fullwiki_v1.json']
-# JSONS = ['hotpot/hotpot_dev_fullwiki_v1.json']
+JSONS = ['/home/rg3155/hotpot/hotpot_dev_distractor_v1.json',
+         '/home/rg3155/hotpot/hotpot_dev_fullwiki_v1.json',
+         '/home/rg3155/results/distractor_formatted.json']
 parser = argparse.ArgumentParser(description='get IR metrics')
 parser.add_argument('--json', help='JSON file(s)', nargs='*', default=JSONS)
 parser.add_argument('--output', help='output file name', default='output.txt')
+parser.add_argument('--max_K', type=int, help='max K', default=10)
 
 def get_rank(hit, article_titles):
     """Get rank of hit from the candidate article titles.
@@ -44,7 +45,7 @@ def get_ir_metrics(dataset, max_K=10):
     """
     total_num_hits = 0
     total_num_gold = len(dataset) * 2
-    hits_at = [[] for x in range(10)]
+    hits_at = [[] for x in range(max_K)]
     prec_at = [[] for x in range(len(dataset))]
     avg_ranks = []
     for i, question_item in enumerate(dataset):
@@ -82,12 +83,19 @@ def get_ir_metrics(dataset, max_K=10):
     mean_hits_at = [np.mean(x) for x in hits_at]
     return (mean_avg_prec, mean_rank, mean_hits_at)
 
-def print_ir_table(metrics_list, set_names):
-    print('{:^25} {:^5} {:^10} {:^8} {:^8}'.format('Set', 'MAP', 'Mean Rank', 'Hits@2', 'Hits@10'))
-    print('-' * 60)
-    for metrics, name in zip(metrics_list, set_names):
-        metrics = [metrics[0] * 100, metrics[1], metrics[2][1] * 100, metrics[2][9] * 100]
-        print('{:<25} {:^5.2f} {:10.2f} {:8.2f} {:8.2f}'.format(name, *metrics))
+def print_ir_table(metrics_list, set_names, max_K=10):
+    if max_K == 100:
+        print('{:^25} {:^5} {:^10} {:^8} {:^8} {:^8}'.format('Set', 'MAP', 'Mean Rank', 'Hits@2', 'Hits@10', 'Hits@100'))
+        print('-' * 60)
+        for metrics, name in zip(metrics_list, set_names):
+            metrics = [metrics[0] * 100, metrics[1], metrics[2][1] * 100, metrics[2][9] * 100, metrics[2][99] * 100]
+            print('{:<25} {:^5.2f} {:10.2f} {:8.2f} {:8.2f} {:8.2f}'.format(name, *metrics))
+    else:    
+        print('{:^25} {:^5} {:^10} {:^8} {:^8}'.format('Set', 'MAP', 'Mean Rank', 'Hits@2', 'Hits@10'))
+        print('-' * 60)
+        for metrics, name in zip(metrics_list, set_names):
+            metrics = [metrics[0] * 100, metrics[1], metrics[2][1] * 100, metrics[2][9] * 100]
+            print('{:<25} {:^5.2f} {:10.2f} {:8.2f} {:8.2f}'.format(name, *metrics))
 
 def main():
     metrics_list = []
@@ -96,10 +104,10 @@ def main():
         print('loading dataset from {}'.format(json_name))
         with open(json_name) as f:
             dataset = json.load(f)
-        metrics_list.append(get_ir_metrics(dataset))
+        metrics_list.append(get_ir_metrics(dataset, args.max_K))
     strip_set_name = lambda x: os.path.splitext(os.path.basename(x))[0]
     set_names = [strip_set_name(x) for x in args.json]
-    print_ir_table(metrics_list, set_names)
+    print_ir_table(metrics_list, set_names, args.max_K)
 
 
 if __name__ == '__main__':

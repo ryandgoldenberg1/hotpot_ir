@@ -11,21 +11,21 @@ import pandas as pd
 import lookup_lib
 
 RESULTS = [
-    'results/distractor.json',
-    'results/full_wiki.json',
-    'results/train.json',
+    # '/home/rg3155/results/distractor.json',
+    '/home/rg3155/results/fullwiki_tf_idf.json'
+    # '/home/rg3155/results/distractor_tf_idf.json',
 ]
 
 IN_FILES = [
-    'hotpot/hotpot_dev_distractor_v1.json',
-    'hotpot/hotpot_dev_fullwiki_v1.json',
-    'hotpot/hotpot_train_v1.json',
+    # '/home/rg3155/hotpot/hotpot_dev_distractor_v1.json',
+    '/home/rg3155/hotpot/hotpot_dev_fullwiki_v1.json',
+    # '/home/rg3155/hotpot/hotpot_train_v1.json',
 ]
 
 OUT_FILES = [
-    'results/distractor_formatted.json',
-    'results/full_wiki_formatted.json',
-    'results/train_formatted.json',
+    # '/home/rg3155/results/distractor_formmated.json',
+    # '/home/rg3155/results/distractor_tf_idf_formatted.json',
+    '/home/rg3155/results/fullwiki_tf_idf_formatted.json'
 ]
 
 parser = argparse.ArgumentParser(description='format IR results for evaluation')
@@ -49,8 +49,7 @@ def main(args):
                 query_id = search['query_id']
                 doc_id = search['doc_id']
                 # doc_info = list(docs.get(doc_id))
-                doc_info = [docs.get(doc_id)[0], [], search['score']]
-                # import pdb; pdb.set_trace()
+                doc_info = [docs.get(doc_id)[0], docs.get(doc_id)[1], search['score'], search['rank']]
                 out_d[query_id]['context'].append(doc_info)
             print('saving to {}...'.format(out_path))
             out_vals = list(out_d.values())
