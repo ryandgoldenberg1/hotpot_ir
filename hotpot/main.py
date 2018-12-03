@@ -25,6 +25,7 @@ parser.add_argument('--mode', type=str, default='train')
 parser.add_argument('--data_file', type=str)
 parser.add_argument('--glove_word_file', type=str, default=glove_word_file)
 parser.add_argument('--save', type=str, default='HOTPOT')
+parser.add_argument('--prev_weights', type=str)
 
 parser.add_argument('--word_emb_file', type=str, default=word_emb_file)
 parser.add_argument('--char_emb_file', type=str, default=char_emb_file)
@@ -67,11 +68,18 @@ parser.add_argument('--fullwiki', action='store_true')
 parser.add_argument('--prediction_file', type=str)
 parser.add_argument('--sp_threshold', type=float, default=0.3)
 
+# custom field for hotpot_ir
+parser.add_argument('--custom_ir', action='store_true')
+parser.add_argument('--shuffle', action='store_true', default=False)
+parser.add_argument('--context_size', type=int, default=-1)
+
 config = parser.parse_args()
 
 def _concat(filename):
     if config.fullwiki:
         return 'fullwiki.{}'.format(filename)
+    elif config.custom_ir:
+        return 'custom_ir.{}'.format(filename)
     return filename
 # config.train_record_file = _concat(config.train_record_file)
 config.dev_record_file = _concat(config.dev_record_file)

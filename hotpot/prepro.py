@@ -11,7 +11,7 @@ import torch
 import torch
 import os
 from joblib import Parallel, delayed
-
+import random
 import torch
 
 nlp = spacy.blank("en")
@@ -85,6 +85,11 @@ def prepro_sent(sent):
 
 def _process_article(article, config):
     paragraphs = article['context']
+    if config.context_size != -1:
+        paragraphs = paragraphs[:config.context_size]
+    if config.shuffle:
+        random.shuffle(paragraphs)
+    
     # some articles in the fullwiki dev/test sets have zero paragraphs
     if len(paragraphs) == 0:
         paragraphs = [['some random title', 'some random stuff']]
@@ -170,7 +175,11 @@ def process_file(filename, config, word_counter=None, char_counter=None):
 
     examples = []
     eval_examples = {}
-
+    
+    if config.context_size != -1:
+        print('limiting to {} articles per question'.format(config.context_size))
+    if config.shuffle:
+        print('shuffling articles')
     outputs = Parallel(n_jobs=12, verbose=10)(delayed(_process_article)(article, config) for article in data)
     # outputs = [_process_article(article, config) for article in data]
     examples = [e[0] for e in outputs]

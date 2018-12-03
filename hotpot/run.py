@@ -79,6 +79,9 @@ def train(config):
 
     logging('nparams {}'.format(sum([p.nelement() for p in model.parameters() if p.requires_grad])))
     ori_model = model.cuda()
+    if config.prev_weights is not None:
+        print('Loading weights from: {}'.format(config.prev_weights))
+        ori_model.load_state_dict(torch.load(config.prev_weights))
     model = nn.DataParallel(ori_model)
 
     lr = config.init_lr
